@@ -1,0 +1,4 @@
+<key>NSCameraUsageDescription</key>
+<string>ChiliCare membutuhkan akses kamera untuk mendeteksi penyakit cabai.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>ChiliCare membutuhkan akses galeri untuk mengunggah foto cabai.</string>

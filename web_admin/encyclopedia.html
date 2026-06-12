@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom Theme Pop-Art -->
+    <link rel="stylesheet" href="css/style.css">
+    <title>ChiliCare Admin - Ensiklopedia</title>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- SIDEBAR -->
+            <aside class="col-md-2 sidebar">
+                <div class="brand-box text-center"><h3 class="m-0 fw-bold">CHILICARE</h3></div>
+                <nav class="nav flex-column">
+                    <a href="index.html" class="nav-link"><i class="bi bi-grid-fill"></i> Dashboard</a>
+                    <a href="users.html" class="nav-link"><i class="bi bi-people-fill"></i> Kelola User</a>
+                    <a href="encyclopedia.html" class="nav-link active"><i class="bi bi-book-half"></i> Ensiklopedia</a>
+                </nav>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="col-md-10 p-5">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div>
+                        <h1 class="fw-bold display-6">Manajemen Ensiklopedia 📚</h1>
+                        <p class="text-muted">Kelola data master penyakit dan rekomendasi penanganan.</p>
+                    </div>
+                    <!-- Tombol Tambah Data -->
+                    <button class="pop-btn" data-bs-toggle="modal" data-bs-target="#mTambah">+ Tambah Data</button>
+                </div>
+
+                <!-- TABEL DATA -->
+                <div class="table-container shadow">
+                    <table class="table m-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Nama Penyakit</th>
+                                <th>Penyebab</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="disease-body">
+                            <!-- Data akan dimuat otomatis oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- [BAGIAN 2] MODAL TAMBAH & EDIT -->
+    
+    <!-- Modal Tambah -->
+    <div class="modal fade" id="mTambah" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content pop-card">
+                <h3 class="fw-bold mb-4">Penyakit Baru</h3>
+                <input type="text" id="n" class="form-control pop-input mb-3" placeholder="Nama Penyakit">
+                <textarea id="g" class="form-control pop-input mb-3" placeholder="Gejala Visual"></textarea>
+                <input type="text" id="p" class="form-control pop-input mb-3" placeholder="Penyebab">
+                <textarea id="l" class="form-control pop-input mb-3" placeholder="Langkah Penanganan"></textarea>
+                <input type="text" id="o" class="form-control pop-input mb-3" placeholder="Rekomendasi Obat">
+                <button onclick="save()" class="pop-btn w-100 mt-3">SIMPAN DATA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit (Yang Anda Tanyakan) -->
+    <div class="modal fade" id="mEdit" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content pop-card">
+                <h3 class="fw-bold mb-4" style="color: var(--tomato);">Edit Data Penyakit</h3>
+                <input type="hidden" id="edit-id"> <!-- Menyimpan ID untuk Update -->
+                
+                <label class="fw-bold small">Nama Penyakit</label>
+                <input type="text" id="edit-n" class="form-control pop-input mb-3">
+                
+                <label class="fw-bold small">Gejala Visual</label>
+                <textarea id="edit-g" class="form-control pop-input mb-3" rows="3"></textarea>
+                
+                <label class="fw-bold small">Penyebab</label>
+                <input type="text" id="edit-p" class="form-control pop-input mb-3">
+                
+                <label class="fw-bold small">Langkah Penanganan</label>
+                <textarea id="edit-l" class="form-control pop-input mb-3" rows="3"></textarea>
+                
+                <label class="fw-bold small">Rekomendasi Obat</label>
+                <input type="text" id="edit-o" class="form-control pop-input mb-3">
+                
+                <div class="d-flex gap-2">
+                    <button onclick="update()" class="pop-btn w-100 mt-3" style="background-color: var(--sky);">UPDATE</button>
+                    <button class="pop-btn w-100 mt-3" style="background-color: #ddd;" data-bs-dismiss="modal">BATAL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [BAGIAN 3] LOGIKA JAVASCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Array global untuk menampung data penyakit agar mudah diambil saat edit
+        let diseaseData = [];
+
+        // 1. Fungsi READ (Muat data dari MySQL)
+        async function load() {
+            const data = await apiRequest("/encyclopedia/");
+            diseaseData = data; // Simpan ke global variable
+            const body = document.getElementById('disease-body');
+            
+            body.innerHTML = data.map((i, index) => `
+                <tr>
+                    <td class="fw-bold">${i.nama_penyakit}</td>
+                    <td>${i.penyebab}</td>
+                    <td class="text-center">
+                        <button onclick="showEditModal(${index})" class="btn btn-warning btn-sm fw-bold border-2 border-dark shadow-sm me-2">Edit</button>
+                        <button onclick="del(${i.id_penyakit})" class="btn btn-danger btn-sm fw-bold border-2 border-dark shadow-sm">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 2. Fungsi CREATE (Simpan baru)
+        async function save() {
+            const body = {
+                nama_penyakit: document.getElementById('n').value,
+                gejala_visual: document.getElementById('g').value,
+                penyebab: document.getElementById('p').value,
+                langkah_penanganan: document.getElementById('l').value,
+                nama_obat: document.getElementById('o').value
+            };
+            await apiRequest("/encyclopedia/", "POST", body);
+            alert("Data Berhasil Disimpan!");
+            location.reload();
+        }
+
+        // 3a. Fungsi Show Edit Modal (Mengisi data lama ke form)
+        function showEditModal(index) {
+            const item = diseaseData[index];
+            document.getElementById('edit-id').value = item.id_penyakit;
+            document.getElementById('edit-n').value = item.nama_penyakit;
+            document.getElementById('edit-g').value = item.gejala_visual;
+            document.getElementById('edit-p').value = item.penyebab;
+            
+            // Cek jika ada data rekomendasi (agar tidak error)
+            document.getElementById('edit-l').value = item.rekomendasi ? item.rekomendasi.langkah_penanganan : '';
+            document.getElementById('edit-o').value = item.rekomendasi ? item.rekomendasi.nama_obat : '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('mEdit'));
+            modal.show();
+        }
+
+        // 3b. Fungsi UPDATE (Kirim perubahan ke Backend)
+        async function update() {
+            const id = document.getElementById('edit-id').value;
+            const body = {
+                nama_penyakit: document.getElementById('edit-n').value,
+                gejala_visual: document.getElementById('edit-g').value,
+                penyebab: document.getElementById('edit-p').value,
+                langkah_penanganan: document.getElementById('edit-l').value,
+                nama_obat: document.getElementById('edit-o').value
+            };
+
+            await apiRequest(`/encyclopedia/${id}`, "PUT", body);
+            alert("Data Berhasil Diperbarui!");
+            location.reload();
+        }
+
+        // 4. Fungsi DELETE
+        async function del(id) {
+            if(confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+                await apiRequest(`/encyclopedia/${id}`, "DELETE");
+                load();
+            }
+        }
+
+        // Jalankan load data saat halaman dibuka
+        load();
+    </script>
+</body>
+</html>

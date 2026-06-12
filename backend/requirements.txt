@@ -1,10 +1,23 @@
+# Web Framework & Server
 fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+uvicorn==0.24.0
+
+# Database ORM & Driver
 sqlalchemy==2.0.23
-tensorflow==2.13.0
-opencv-python-headless==4.8.1.78
-numpy==1.24.3
+pymysql==1.1.0
+cryptography==41.0.5
+
+# Data Validation & Env Management
+pydantic==2.5.2
 python-dotenv==1.0.0
-aiofiles==23.2.1
-Pillow==10.1.0
+
+# Image Processing & Machine Learning
+tensorflow-cpu==2.15.0
+pillow==10.1.0
+numpy==1.26.2
+
+# Multipart Form Data (Untuk Upload Gambar)
+python-multipart==0.0.6
+
+# Security (Hashing Password)
+passlib[bcrypt]==1.7.4

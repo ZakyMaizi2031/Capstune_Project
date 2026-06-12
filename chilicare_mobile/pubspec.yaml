@@ -1,0 +1,37 @@
+name: chilicare_mobile
+description: Aplikasi Deteksi Penyakit Cabai Merah ChiliCare
+publish_to: 'none'
+
+version: 1.0.0+1
+
+# BAGIAN INI YANG TADI MENYEBABKAN ERROR (PENTING!)
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Library pendukung yang sudah kita bahas sebelumnya
+  http: ^1.1.0
+  provider: ^6.1.1
+  image_picker: ^1.0.4
+  flutter_dotenv: ^5.1.0
+  google_fonts: ^6.1.0
+  intl: ^0.18.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Pastikan file .env dan aset gambar didaftarkan agar bisa dibaca kode
+  assets:
+    - .env
+    - assets/images/logo.jpeg
+    # Jika Anda punya gambar spesifik, daftarkan foldernya saja sudah cukup
+    # atau daftarkan satu-satu:
+    # - assets/images/logo_chilicare.png
