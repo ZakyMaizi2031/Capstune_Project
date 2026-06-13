@@ -27,7 +27,7 @@ class _EncyclopediaScreenState extends State<EncyclopediaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ChiliTheme.lemonYellow,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("ENSIKLOPEDIA CABAI"),
       ),
@@ -79,12 +79,12 @@ class _EncyclopediaScreenState extends State<EncyclopediaScreen> {
                   itemCount: filteredList.length,
                   itemBuilder: (context, index) {
                   final disease = filteredList[index];
-                    // Warna selang-seling agar ceria (Pop-Art style)
+// Warna selang-seling agar ceria (Pop-Art style)
                     final List<Color> cardColors = [
+                      ChiliTheme.mintSoft,
                       ChiliTheme.mintGreen,
-                      Colors.orangeAccent,
-                      Colors.lightBlueAccent,
-                      const Color(0xFFF08080) // Light Coral
+                      ChiliTheme.creamWhite,
+                      ChiliTheme.mintSoft,
                     ];
                     
                     return _buildDiseaseCard(

@@ -3,22 +3,24 @@ import uuid
 from ..core.config import settings
 
 def save_image(file):
-    """Logika menyimpan file gambar ke folder static/uploads/"""
-    # Cek apakah folder static/uploads sudah ada, jika belum buat otomatis
+    """Simpan upload gambar ke filesystem dan kembalikan URL untuk disimpan di DB."""
+    # Pastikan folder upload ada
     if not os.path.exists(settings.UPLOAD_DIR):
-        os.makedirs(settings.UPLOAD_DIR)
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 
-    # Buat nama file unik menggunakan UUID agar tidak ada file yang tertimpa
-    file_ext = file.filename.split(".")[-1]
+    # Ekstrak ekstensi file
+    file_ext = file.filename.split(".")[-1].lower() if "." in file.filename else "jpg"
     unique_filename = f"chili_{uuid.uuid4().hex}.{file_ext}"
-    
+
+    # Path filesystem untuk menyimpan file
     file_path = os.path.join(settings.UPLOAD_DIR, unique_filename)
-    
+
+    # Tulis ke disk
     with open(file_path, "wb") as f:
         f.write(file.file.read())
-        
-    # Mengembalikan path file untuk disimpan di kolom 'file_foto_input' MySQL
-    return file_path
+
+    # Return URL yang cocok untuk StaticFiles mount: /static/uploads/<file>
+    return f"/static/uploads/{unique_filename}"
 
 # Alias untuk kompatibilitas dengan detection.py
 def save_upload_file(file):

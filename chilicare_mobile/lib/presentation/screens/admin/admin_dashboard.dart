@@ -26,7 +26,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: ChiliTheme.lemonYellow,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("ADMIN DASHBOARD"),
         actions: [
@@ -178,7 +178,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         child: Row(
           children: [
             CircleAvatar(
-              backgroundColor: ChiliTheme.lemonYellow,
+              backgroundColor: Colors.white,
               child: Icon(icon, color: Colors.black),
             ),
             const SizedBox(width: 15),

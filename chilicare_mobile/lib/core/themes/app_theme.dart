@@ -15,6 +15,14 @@ class ChiliTheme {
   
   /// Warna Hijau Mint - Button dan Success States
   static const Color mintGreen = Color(0xFF27AE60);
+
+  /// Warna Putih-krim untuk background kartu (agar hijau-putih terasa lebih hangat)
+  static const Color creamWhite = Color(0xFFFFFBF2);
+
+  /// Warna hijau yang lebih muda untuk highlight/secondary background
+  static const Color mintSoft = Color(0xFFBDF7D1);
+
+
   
   /// Warna Orange Cerah - Warning dan Secondary Accent
   static const Color brightOrange = Color(0xFFF39C12);

@@ -127,7 +127,7 @@ class _ScanCameraState extends State<ScanCamera> {
     final isLoading = context.watch<ScanProvider>().isLoading;
 
     return Scaffold(
-      backgroundColor: ChiliTheme.lemonYellow,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("DETEKSI CABAI"),
       ),

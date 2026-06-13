@@ -10,6 +10,7 @@ class User(Base):
     email = Column(String(100), unique=True)
     password = Column(String(255))
     role = Column(String(20), default="petani")
+    foto_profil = Column(String(255), nullable=True)
 
 class Penyakit(Base):
     __tablename__ = "penyakit"

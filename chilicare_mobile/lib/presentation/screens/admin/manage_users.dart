@@ -65,7 +65,7 @@ class _ManageUsersState extends State<ManageUsers> {
                 ),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: ChiliTheme.lemonYellow,
+                    backgroundColor: Colors.white,
                     child: Text(user.namaLengkap[0], style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
                   ),
                   title: Text(user.namaLengkap, style: const TextStyle(fontWeight: FontWeight.bold)),

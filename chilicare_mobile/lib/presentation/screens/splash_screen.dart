@@ -82,98 +82,91 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ChiliTheme.lemonYellow, // Background Kuning Lemon
-      body: Stack(
-        children: [
-          // Elemen Dekoratif Dot/Titik (Style Komik)
-          Positioned(
-            top: -50,
-            left: -50,
-            child: _buildDecorativeCircle(ChiliTheme.tomatoRed, 150),
-          ),
-          Positioned(
-            bottom: -30,
-            right: -30,
-            child: _buildDecorativeCircle(ChiliTheme.mintGreen, 120),
-          ),
-
-          // Konten Utama
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo Animasi
-                ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: Container(
-                    padding: const EdgeInsets.all(25),
-                    decoration: ChiliTheme.popArtDecoration(color: Colors.white),
-                    child: const Icon(
-                      Icons.local_florist, // Icon tanaman/bunga untuk cabai
-                      size: 100,
-                      color: ChiliTheme.tomatoRed,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo Animasi
+                    ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              // ignore: deprecated_member_use
+                              color: ChiliTheme.mintGreen.withOpacity(0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.asset(
+                            'assets/images/logo.jpeg',
+                            width: 140,
+                            height: 140,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 32),
+                    
+                    // Nama Aplikasi
+                    const Text(
+                      "CHILICARE",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: ChiliTheme.mintGreen,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    const Text(
+                      "Healthy Chili, Happy Farmer",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: ChiliTheme.mintGreen,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 30),
-                
-                // Nama Aplikasi dengan Border Hitam (Style Bungee)
-                Text(
-                  "CHILICARE",
-                  style: ChiliTheme.headerTitle.copyWith(
-                    fontSize: 40,
-                    letterSpacing: 2,
-                  ),
-                ),
-                
-                const Text(
-                  "Healthy Chili, Happy Farmer",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black54,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 50),
-
-                // Indikator Loading Modern
-                const SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(
-                    color: Colors.black,
-                    strokeWidth: 5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Footer Version
-          const Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 30),
-              child: Text(
-                "v 1.0.0 - ChiliCare Team",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
               ),
             ),
-          )
-        ],
-      ),
-    );
-  }
+            
+            // Indikator Loading Modern
+            const CircularProgressIndicator(
+              color: ChiliTheme.mintGreen,
+              strokeWidth: 3,
+            ),
+            const SizedBox(height: 32),
 
-  // Widget Pembantu untuk dekorasi Pop-Art
-  Widget _buildDecorativeCircle(Color color, double size) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.black, width: 3),
+            // Footer Version
+            const Padding(
+              padding: EdgeInsets.only(bottom: 24),
+              child: Text(
+                "v 1.0.0 - ChiliCare Team",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold, 
+                  color: ChiliTheme.mintGreen,
+                  fontSize: 12,
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

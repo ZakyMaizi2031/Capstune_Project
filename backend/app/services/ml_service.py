@@ -32,7 +32,7 @@ def run_inference(image_path):
         img = Image.open(image_path).resize((224, 224))
         
         # 2. Konversi ke Array dan Normalisasi
-        img_array = np.array(img, dtype=np.float32) / 255.0
+        img_array = np.array(img, dtype=np.float32)
         
         # Handle grayscale atau RGBA
         if len(img_array.shape) == 2:  # Grayscale
@@ -41,18 +41,20 @@ def run_inference(image_path):
             img_array = img_array[:, :, :3]
         
         img_array = np.expand_dims(img_array, axis=0)
+        
+        img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
 
         # 3. Prediksi dengan model atau simulasi
         if model is not None:
             predictions = model.predict(img_array, verbose=0)
-            result_index = np.argmax(predictions[0])
+            result_index = int(np.argmax(predictions[0]))
             akurasi = float(np.max(predictions[0]))
         else:
             # Mode simulasi jika model tidak terload
-            result_index = 0
+            result_index = 3
             akurasi = 0.98
         
-        labels = ["Antraknosa", "Busuk Basah", "Busuk Kering", "Virus", "Sehat"]
+        labels = ["Antraknosa", "Busuk Basah", "Busuk Kering", "Sehat", "Virus"]
         label_hasil = labels[result_index]
         
         return label_hasil, akurasi

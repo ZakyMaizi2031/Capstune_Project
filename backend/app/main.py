@@ -35,7 +35,7 @@ if not os.path.exists(settings.UPLOAD_DIR):
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 
 # Folder static bisa diakses via URL: http://localhost:8000/static/...
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
 # 5. REGISTRASI ROUTER (Menghubungkan endpoint API)
 app.include_router(auth.router)           # Login & Register

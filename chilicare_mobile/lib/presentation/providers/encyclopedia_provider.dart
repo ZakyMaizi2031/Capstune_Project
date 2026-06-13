@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../../data/models/disease_model.dart';
+import '../../data/repositories/api_repository.dart';
+
 /// Provider untuk mengelola data encyclopedia (database penyakit cabai)
 class EncyclopediaProvider extends ChangeNotifier {
+  final ApiRepository _apiRepository = ApiRepository();
+
   // State Variables
   List<Map<String, dynamic>> _diseases = [];
   bool _isLoading = false;
   String? _errorMessage;
   Map<String, dynamic>? _selectedDisease;
+
 
   // Getters
   List<Map<String, dynamic>> get diseases => _diseases;
@@ -24,10 +30,21 @@ class EncyclopediaProvider extends ChangeNotifier {
     _setErrorMessage(null);
 
     try {
-      // TODO: Implementasi API call untuk fetch diseases
-      // final response = await _apiRepository.getDiseases();
-      // _diseases = response;
-      
+      final List<DiseaseModel> diseases = await _apiRepository.getEncyclopedia();
+
+      // UI saat ini membaca key camelCase: namaPenyakit, gejalaVisual, penyebab
+      _diseases = diseases.map((d) {
+        return {
+          'id_penyakit': d.idPenyakit,
+          'namaPenyakit': d.namaPenyakit,
+          'gejalaVisual': d.gejalaVisual,
+          'penyebab': d.penyebab,
+          'foto_referensi': d.fotoReferensi,
+          // supaya future bisa dipakai kalau UI/fitur detail dikembangkan
+          'rekomendasi': d.rekomendasi,
+        };
+      }).toList();
+
       _setLoading(false);
       notifyListeners();
     } catch (e) {
@@ -84,6 +101,7 @@ class EncyclopediaProvider extends ChangeNotifier {
   void _setErrorMessage(String? message) {
     _errorMessage = message;
   }
+
 
   /// Reset state encyclopedia
   void reset() {

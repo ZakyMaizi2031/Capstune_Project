@@ -29,6 +29,7 @@ class UserResponse(BaseModel):
     nama_lengkap: str
     email: str
     role: str
+    foto_profil: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
 

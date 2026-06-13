@@ -23,7 +23,7 @@ class ResultScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: ChiliTheme.lemonYellow,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("HASIL DETEKSI CABAI"),
         centerTitle: true,

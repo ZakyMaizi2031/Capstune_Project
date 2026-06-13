@@ -17,16 +17,16 @@ class DetectionModel {
 
   factory DetectionModel.fromJson(Map<String, dynamic> json) {
     // Mengambil data dari response FastAPI
-    var penyakit = json['penyakit_info'];
-    var rekomendasi = penyakit['rekomendasi'];
-    
+    final penyakit = json['penyakit_info'] as Map<String, dynamic>;
+    final rekomendasi = (penyakit['rekomendasi'] as Map<String, dynamic>?);
+
     return DetectionModel(
       label: json['label'],
-      confidence: json['confidence'],
-      gejala: penyakit['gejala_visual'],
-      penyebab: penyakit['penyebab'],
-      langkahPenanganan: rekomendasi['langkah_penanganan'],
-      namaObat: rekomendasi['nama_obat'],
+      confidence: (json['confidence'] as num).toDouble(),
+      gejala: penyakit['gejala_visual'] ?? '',
+      penyebab: penyakit['penyebab'] ?? '',
+      langkahPenanganan: rekomendasi?['langkah_penanganan'] ?? '',
+      namaObat: rekomendasi?['nama_obat'] ?? '',
     );
   }
 }

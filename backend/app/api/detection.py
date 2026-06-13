@@ -39,17 +39,32 @@ async def predict(id_user: int = Form(...), file: UploadFile = File(...), db: Se
         db.refresh(log)
         
         # 6. Return hasil ke Flutter
+        # Perlu kirim rekomendasi agar Flutter bisa render langkah & obat
+        rekomendasi = None
+        try:
+            rekomendasi = penyakit.rekomendasi
+        except Exception:
+            rekomendasi = None
+
         return {
             "id_riwayat": log.id_riwayat,
-            "label": label, 
+            "label": label,
             "confidence": acc,
             "penyakit_info": {
                 "id_penyakit": penyakit.id_penyakit,
                 "nama_penyakit": penyakit.nama_penyakit,
                 "gejala_visual": penyakit.gejala_visual,
                 "penyebab": penyakit.penyebab,
-                "foto_referensi": penyakit.foto_referensi
-            }
+                "foto_referensi": penyakit.foto_referensi,
+                "rekomendasi": (
+                    {
+                        "langkah_penanganan": rekomendasi.langkah_penanganan,
+                        "nama_obat": rekomendasi.nama_obat,
+                    }
+                    if rekomendasi is not None
+                    else None
+                ),
+            },
         }
         
     except HTTPException as e:

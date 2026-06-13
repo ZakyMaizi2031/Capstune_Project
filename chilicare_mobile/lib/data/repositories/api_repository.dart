@@ -69,6 +69,23 @@ class ApiRepository {
     }
   }
 
+  Future<String?> uploadProfilePhoto(File imageFile, int userId) async {
+    var request = http.MultipartRequest(
+      'PUT',
+      Uri.parse("${ApiConstants.baseUrl}/api/auth/update-profile/$userId"),
+    );
+    request.files.add(
+      await http.MultipartFile.fromPath('file', imageFile.path),
+    );
+
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      var resData = await http.Response.fromStream(response);
+      return jsonDecode(resData.body)['path'];
+    }
+    return null;
+  }
+
   // Upload Gambar ke CNN & Ambil Hasil Deteksi
   Future<Map<String, dynamic>> predictDisease(
     File imageFile,

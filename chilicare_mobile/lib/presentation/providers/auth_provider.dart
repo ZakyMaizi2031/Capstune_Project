@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../data/models/user_model.dart';
 import '../../data/repositories/api_repository.dart';
+import 'dart:io';
 
 class AuthProvider with ChangeNotifier {
-  // Instance dari repository untuk akses ke API
   final ApiRepository _apiRepository = ApiRepository();
 
   // State Variables
@@ -11,15 +11,20 @@ class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Getters (Agar UI bisa membaca data tanpa mengubahnya langsung)
+  // Getters
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-
-  // Mengecek apakah sudah ada user yang login
   bool get isAuthenticated => _user != null;
 
-  get userSession => null;
+  // Getter userSession yang diperbaiki untuk kebutuhan UI (Admin/Petani)
+  Map<String, dynamic>? get userSession => _user != null ? {
+    'id_user': _user!.idUser,
+    'nama': _user!.namaLengkap,
+    'email': _user!.email,
+    'role': _user!.role,
+    'foto_profil': _user!.fotoProfil,
+  } : null;
 
   // ==========================================
   // 1. LOGIKA LOGIN
@@ -29,13 +34,10 @@ class AuthProvider with ChangeNotifier {
     _setErrorMessage(null);
 
     try {
-      // Memanggil fungsi login di repository
       _user = await _apiRepository.login(email, password);
       
       _setLoading(false);
       notifyListeners();
-      
-      // Mengembalikan role ('admin' atau 'petani') untuk routing di UI
       return _user?.role;
     } catch (e) {
       _setLoading(false);
@@ -45,20 +47,15 @@ class AuthProvider with ChangeNotifier {
   }
 
   // ==========================================
-  // 2. LOGIKA REGISTRASI (KHUSUS PETANI)
+  // 2. LOGIKA REGISTRASI
   // ==========================================
-  Future<bool> register(String nama, String email, String password) async {
+  Future<bool> registerProcess(String nama, String email, String password) async {
     _setLoading(true);
     _setErrorMessage(null);
 
     try {
-      // Backend akan otomatis memberikan role 'petani'
       bool isSuccess = await _apiRepository.register(nama, email, password);
-      
       _setLoading(false);
-      if (!isSuccess) {
-        _setErrorMessage("Gagal mendaftarkan akun. Silakan coba lagi.");
-      }
       return isSuccess;
     } catch (e) {
       _setLoading(false);
@@ -67,13 +64,56 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Alias untuk registerProcess (untuk kompatibilitas dengan UI)
-  Future<bool> registerProcess(String nama, String email, String password) {
-    return register(nama, email, password);
+  // ==========================================
+  // 3. UPDATE FOTO PROFIL (LOKAL & SERVER)
+  // ==========================================
+  Future<bool> updateProfilePicture(File imageFile) async {
+    if (_user == null) return false;
+    
+    _setLoading(true);
+    try {
+      // 1. Kirim file ke backend
+      String? newPath = await _apiRepository.uploadProfilePhoto(imageFile, _user!.idUser);
+      
+      if (newPath != null) {
+        // 2. Update object user di memori (Lokal)
+        _user = UserModel(
+          idUser: _user!.idUser,
+          namaLengkap: _user!.namaLengkap,
+          email: _user!.email,
+          role: _user!.role,
+          fotoProfil: newPath, // Path baru dari server
+        );
+        
+        _setLoading(false);
+        notifyListeners(); // Memicu UI (AppBar, Profile Screen) untuk update foto
+        return true;
+      }
+      _setLoading(false);
+      return false;
+    } catch (e) {
+      _setLoading(false);
+      _setErrorMessage("Gagal mengupload foto");
+      return false;
+    }
+  }
+
+  // Fungsi pembantu untuk update path foto jika diperlukan secara manual
+  void updateLocalFoto(String path) {
+    if (_user != null) {
+      _user = UserModel(
+        idUser: _user!.idUser,
+        namaLengkap: _user!.namaLengkap,
+        email: _user!.email,
+        role: _user!.role,
+        fotoProfil: path,
+      );
+      notifyListeners();
+    }
   }
 
   // ==========================================
-  // 3. LOGIKA LOGOUT
+  // 4. LOGIKA LOGOUT
   // ==========================================
   void logout() {
     _user = null;
@@ -85,7 +125,6 @@ class AuthProvider with ChangeNotifier {
   // ==========================================
   // HELPER METHODS (PRIVATE)
   // ==========================================
-  
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

@@ -61,7 +61,7 @@ class ResultScreen extends StatelessWidget {
                       const Text("Rekomendasi Obat:", style: TextStyle(fontWeight: FontWeight.bold)),
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: ChiliTheme.lemonYellow, border: Border.all(width: 1)),
+                        decoration: BoxDecoration(color: Colors.white, border: Border.all(width: 1)),
                         child: Text(data.namaObat, style: const TextStyle(fontStyle: FontStyle.italic)),
                       ),
                     ],

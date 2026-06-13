@@ -118,10 +118,31 @@ def get_all_user_logs(db: Session = Depends(database.get_db)):
     """Melihat semua riwayat scan dari seluruh petani"""
     logs = db.query(
         models.RiwayatDeteksi.id_riwayat,
-        models.User.nama_lengkap.label("nama_petani"),
+        models.RiwayatDeteksi.id_user,
+        models.RiwayatDeteksi.id_penyakit,
         models.RiwayatDeteksi.hasil_prediksi,
         models.RiwayatDeteksi.tingkat_akurasi,
-        models.RiwayatDeteksi.tanggal_deteksi
-    ).join(models.User, models.RiwayatDeteksi.id_user == models.User.id_user).all()
-    
-    return logs
+        models.RiwayatDeteksi.tanggal_deteksi,
+        models.RiwayatDeteksi.file_foto_input,
+        models.Penyakit.nama_penyakit
+    ).join(
+        models.User, models.RiwayatDeteksi.id_user == models.User.id_user
+    ).join(
+        models.Penyakit, models.RiwayatDeteksi.id_penyakit == models.Penyakit.id_penyakit
+    ).all()
+
+    # FastAPI akan meng-serialize SQLAlchemy rows menjadi dict-like objects,
+    # tapi kita pastikan bentuknya konsisten.
+    return [
+        {
+            "id_riwayat": log.id_riwayat,
+            "id_user": log.id_user,
+            "id_penyakit": log.id_penyakit,
+            "hasil_prediksi": log.hasil_prediksi,
+            "tingkat_akurasi": log.tingkat_akurasi,
+            "tanggal_deteksi": log.tanggal_deteksi,
+            "file_foto_input": log.file_foto_input,
+            "nama_penyakit": log.nama_penyakit,
+        }
+        for log in logs
+    ]

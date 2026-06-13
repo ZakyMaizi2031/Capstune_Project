@@ -2,13 +2,15 @@ class UserModel {
   final int idUser;
   final String namaLengkap;
   final String email;
-  final String role; // 'petani' atau 'admin'
+  final String role;
+  final String? fotoProfil; // 'petani' atau 'admin'
 
   UserModel({
     required this.idUser,
     required this.namaLengkap,
     required this.email,
     required this.role,
+    required this.fotoProfil,
   });
 
   // 1. Factory method: Mengubah JSON dari FastAPI menjadi Object Dart
@@ -17,7 +19,8 @@ class UserModel {
       idUser: json['id_user'] ?? 0,
       namaLengkap: json['nama'] ?? json['nama_lengkap'] ?? '',
       email: json['email'] ?? '',
-      role: json['role'] ?? 'petani', // Default ke petani jika null
+      role: json['role'] ?? 'petani',  // Default ke petani jika null
+      fotoProfil: json['foto_profil'],
     );
   }
 

@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/encyclopedia_provider.dart';
 import 'presentation/providers/scan_provider.dart';
+import 'presentation/providers/history_provider.dart';
+
 
 // Import Layer Presentation (Screens)
 import 'presentation/screens/splash_screen.dart';
@@ -43,6 +45,7 @@ class ChiliCareApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ScanProvider()),
         ChangeNotifierProvider(create: (_) => EncyclopediaProvider()),
+        ChangeNotifierProvider(create: (_) => HistoryProvider()),
       ],
       child: MaterialApp(
         title: 'ChiliCare',
@@ -51,7 +54,7 @@ class ChiliCareApp extends StatelessWidget {
         // 4. Konfigurasi Tema Pop-Art / Neubrutalism secara Global
         theme: ThemeData(
           useMaterial3: true,
-          scaffoldBackgroundColor: ChiliTheme.lemonYellow,
+          scaffoldBackgroundColor: Colors.white,
           primaryColor: ChiliTheme.tomatoRed,
           
           // Font Modern (Plus Jakarta Sans)
