@@ -33,6 +33,14 @@ class UserResponse(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
 
 # ============================================================
 # 2. SCHEMAS UNTUK ENSIKLOPEDIA & REKOMENDASI (CRUD ADMIN)
@@ -52,6 +60,7 @@ class PenyakitBase(BaseModel):
     gejala_visual: str
     penyebab: str
     foto_referensi: Optional[str] = None
+    rekomendasi: Optional[RekomendasiBase] = None
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -100,9 +109,40 @@ class RiwayatResponse(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
 
+class RiwayatCreate(BaseModel):
+    """Payload saat pengguna menyimpan riwayat deteksi secara manual"""
+    id_user: int
+    id_penyakit: int
+    file_foto_input: str
+    hasil_prediksi: str
+    tingkat_akurasi: float
+
 
 # ============================================================
-# 4. SCHEMAS UNTUK DASHBOARD STATS (Web Admin)
+# 4. SCHEMAS UNTUK ARTIKEL / ENCYCLOPEDIA MANDIRI
+# ============================================================
+
+class ArtikelBase(BaseModel):
+    id_artikel: int
+    judul: str
+    deskripsi: str
+    foto_referensi: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class ArtikelCreate(BaseModel):
+    judul: str
+    deskripsi: str
+    foto_referensi: Optional[str] = "static/placeholder.jpg"
+
+class ArtikelUpdate(BaseModel):
+    judul: Optional[str] = None
+    deskripsi: Optional[str] = None
+    foto_referensi: Optional[str] = None
+
+
+# ============================================================
+# 5. SCHEMAS UNTUK DASHBOARD STATS (Web Admin)
 # ============================================================
 
 class AdminStats(BaseModel):

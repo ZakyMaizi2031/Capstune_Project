@@ -21,3 +21,4 @@ python-multipart==0.0.6
 
 # Security (Hashing Password)
 passlib[bcrypt]==1.7.4
+PyJWT==2.8.0

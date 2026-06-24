@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import List
 from .. import models, database, schemas # Pastikan schemas sudah diupdate
 from ..core.config import settings
 
@@ -50,7 +51,7 @@ def delete_user(id_user: int, db: Session = Depends(database.get_db)):
 # 3. ENCYCLOPEDIA CRUD (Kelola Penyakit)
 # ==========================================
 
-@router.get("/encyclopedia")
+@router.get("/encyclopedia", response_model=List[schemas.PenyakitBase])
 def admin_get_all_diseases(db: Session = Depends(database.get_db)):
     """Melihat list penyakit lengkap untuk tabel di Web Admin"""
     return db.query(models.Penyakit).all()

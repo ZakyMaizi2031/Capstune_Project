@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 # Import komponen internal sesuai struktur folder
 from app.database import engine, Base, SessionLocal
-from app.models import User, Penyakit, Rekomendasi
-from app.api import auth, encyclopedia, detection, admin
+from app.models import User, Penyakit, Rekomendasi, Artikel
+from app.api import auth, encyclopedia, detection, admin, artikel, history
 from app.core.config import settings
 
 # 1. OTOMATISASI DATABASE
@@ -42,6 +42,8 @@ app.include_router(auth.router)           # Login & Register
 app.include_router(encyclopedia.router)   # Katalog Penyakit untuk Petani
 app.include_router(detection.router)      # Proses Deteksi CNN
 app.include_router(admin.router)          # CRUD Dashboard Admin
+app.include_router(artikel.router)        # Artikel Encyclopedia Mandiri
+app.include_router(history.router)        # Riwayat Deteksi
 
 # 6. AUTO-SEEDING (Dijalankan otomatis saat server startup)
 @app.on_event("startup")

@@ -1,75 +1,100 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from sqlalchemy.orm import Session
+import os
+
+# Import komponen internal
 from .. import models, database
 from ..services import storage, ml_service
 
+# 1. Routing Fix: Gunakan prefix tanpa slash di akhir
 router = APIRouter(prefix="/api/predict", tags=["Detection"])
 
-@router.post("/")
-async def predict(id_user: int = Form(...), file: UploadFile = File(...), db: Session = Depends(database.get_db)):
-    """Endpoint untuk mendeteksi penyakit cabai berdasarkan gambar"""
+# 2. Endpoint Utama: Gunakan path kosong "" agar URL-nya pas di /api/predict
+@router.post("") 
+async def predict(
+    id_user: int = Form(...), 
+    file: UploadFile = File(...), 
+    db: Session = Depends(database.get_db)
+):
+    """
+    Endpoint untuk mendeteksi penyakit cabai.
+    Proses: Simpan Gambar -> Inferensi CNN -> Simpan Riwayat -> Kirim Hasil + Rekomendasi
+    """
     try:
-        # 1. Validasi user exists
+        # --- A. VALIDASI USER ---
         user = db.query(models.User).filter(models.User.id_user == id_user).first()
         if not user:
-            raise HTTPException(status_code=404, detail="User tidak ditemukan")
+            raise HTTPException(status_code=404, detail="ID User tidak valid. Silakan login ulang.")
 
-        # 2. Simpan Gambar
-        path = storage.save_upload_file(file)
-        
-        # 3. Jalankan Model CNN
-        label, acc = ml_service.run_inference(path)
-        
-        # 4. Cari info penyakit dari database
+        # --- B. PENANGANAN FILE (WINDOWS COMPATIBLE) ---
+        try:
+            # storage.save_image memastikan folder ada & memberikan path relatif yang aman
+            path_file = storage.save_image(file)
+            
+            # Verifikasi fisik file (Mencegah Errno 2)
+            if not os.path.exists(path_file):
+                raise Exception("File gagal ditulis ke penyimpanan server.")
+            
+            print(f">>> [DEBUG] File berhasil diproses di: {path_file}")
+        except Exception as e:
+            print(f">>> [ERROR STORAGE] {e}")
+            raise HTTPException(status_code=500, detail="Gagal menyimpan gambar di server.")
+
+        # --- C. INFERENSI ML (CNN MOBILE-NET V2) ---
+        try:
+            # Menjalankan real inference dari ml_service.py
+            label, acc = ml_service.run_inference(path_file)
+        except Exception as e:
+            print(f">>> [ERROR ML] {e}")
+            raise HTTPException(status_code=500, detail=f"Gagal menjalankan AI: {str(e)}")
+
+        # --- D. PENCARIAN DATA PENYAKIT & REKOMENDASI ---
+        # Mencari data di tabel 'penyakit' berdasarkan output dari label CNN
         penyakit = db.query(models.Penyakit).filter(models.Penyakit.nama_penyakit == label).first()
         
         if not penyakit:
-            raise HTTPException(status_code=404, detail=f"Data penyakit '{label}' tidak ditemukan di database")
-        
-        # 5. Simpan Riwayat Deteksi ke database
-        log = models.RiwayatDeteksi(
-            id_user=id_user, 
-            id_penyakit=penyakit.id_penyakit,
-            file_foto_input=path, 
-            hasil_prediksi=label, 
-            tingkat_akurasi=acc
-        )
-        db.add(log)
-        db.commit()
-        db.refresh(log)
-        
-        # 6. Return hasil ke Flutter
-        # Perlu kirim rekomendasi agar Flutter bisa render langkah & obat
-        rekomendasi = None
-        try:
-            rekomendasi = penyakit.rekomendasi
-        except Exception:
-            rekomendasi = None
+            # Jika ini terjadi, berarti list 'labels' di ml_service.py tidak sama dengan isi tabel MySQL
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Diagnosa '{label}' ditemukan, tapi detail penanganannya belum ada di database."
+            )
 
+        # Ambil data rekomendasi (menggunakan relationship dari models.py)
+        # Kita buat default jika data rekomendasi belum diinput admin
+        rekomendasi_data = {
+            "langkah_penanganan": "Belum ada langkah penanganan spesifik.",
+            "nama_obat": "-"
+        }
+        
+        if penyakit.rekomendasi:
+            rekomendasi_data["langkah_penanganan"] = penyakit.rekomendasi.langkah_penanganan
+            rekomendasi_data["nama_obat"] = penyakit.rekomendasi.nama_obat
+
+        # --- E. TIDAK LAGI SIMPAN LOG RIWAYAT KE MYSQL SECARA OTOMATIS ---
+        # Gunakan path dengan forward slash (/) agar bisa dibuka Flutter via URL
+        clean_path = path_file.replace("\\", "/")
+
+        # --- F. RESPONSE FINAL KE FLUTTER ---
         return {
-            "id_riwayat": log.id_riwayat,
+            "status": "success",
+            "id_penyakit": penyakit.id_penyakit,
+            "file_foto_input": clean_path,
             "label": label,
             "confidence": acc,
             "penyakit_info": {
-                "id_penyakit": penyakit.id_penyakit,
                 "nama_penyakit": penyakit.nama_penyakit,
                 "gejala_visual": penyakit.gejala_visual,
                 "penyebab": penyakit.penyebab,
                 "foto_referensi": penyakit.foto_referensi,
-                "rekomendasi": (
-                    {
-                        "langkah_penanganan": rekomendasi.langkah_penanganan,
-                        "nama_obat": rekomendasi.nama_obat,
-                    }
-                    if rekomendasi is not None
-                    else None
-                ),
-            },
+                "rekomendasi": rekomendasi_data
+            }
         }
-        
-    except HTTPException as e:
-        raise e
+
+    except HTTPException as he:
+        # Melempar kembali error yang sudah diformat
+        raise he
     except Exception as e:
+        # Fallback untuk error tidak terduga
         db.rollback()
-        print(f"[ERROR] detect error: {e}")
-        raise HTTPException(status_code=500, detail=f"Gagal memproses deteksi: {str(e)}")
+        print(f">>> [SYSTEM CRASH] {e}")
+        raise HTTPException(status_code=500, detail="Terjadi kesalahan internal pada server.")

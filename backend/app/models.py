@@ -42,3 +42,10 @@ class RiwayatDeteksi(Base):
     tanggal_deteksi = Column(DateTime, default=datetime.datetime.now)
     hasil_prediksi = Column(String(50))
     tingkat_akurasi = Column(Float)
+
+class Artikel(Base):
+    __tablename__ = "artikel"
+    id_artikel = Column(Integer, primary_key=True, index=True)
+    judul = Column(String(100))
+    deskripsi = Column(Text)
+    foto_referensi = Column(String(255), nullable=True)
